@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from deep_translator import GoogleTranslator
+import mtranslate
 import random
 
 app = Flask(__name__)
@@ -65,23 +65,19 @@ def translate():
             translated_list = []
             for item in text_data:
                 if str(item).strip():
-                    try:
-                        translated_p = GoogleTranslator(source='auto', target='fr').translate(str(item))
-                        translated_list.append(translated_p)
-                    except Exception:
-                        translated_list.append(str(item))
+                    translated_p = mtranslate.translate(str(item), 'fr', 'auto')
+                    translated_list.append(translated_p)
                 else:
                     translated_list.append("")
             return jsonify({'translation': translated_list})
 
         # Handles Single Text String (Tab 1)
-        translated = GoogleTranslator(source='auto', target='fr').translate(str(text_data))
+        translated = mtranslate.translate(str(text_data), 'fr', 'auto')
         return jsonify({'translation': translated})
 
     except Exception as e:
         print(f"Translation Route Failure: {str(e)}")
-        # Safe Fallback to prevent app crash or 500 error
-        return jsonify({'translation': "Translation temporarily unavailable. Please check internet connection."})
+        return jsonify({'translation': "Error translating text. Please try again."})
 
 if __name__ == '__main__':
     app.run(debug=True)
