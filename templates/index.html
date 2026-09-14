@@ -1,512 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>TCF / TEF French Master Application</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f4f9; color: #333; }
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab-btn { padding: 12px 24px; border: none; background: #e0e0e0; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 16px; }
-    .tab-btn.active { background: #007acc; color: white; }
-    .tab-content { display: none; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .tab-content.active { display: block; }
-    
-    textarea { width: 98%; height: 100px; padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; }
-    button.action-btn { padding: 10px 20px; background: #007acc; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; margin-top: 10px; }
-    button.action-btn:disabled { background: #ccc; cursor: not-allowed; }
-    .output-box { background: #eef2f5; padding: 15px; border-radius: 6px; margin-top: 10px; font-size: 18px; font-weight: bold; }
-    
-    /* Practice Styles */
-    .word-card { background: #f8f9fa; padding: 20px; border-left: 5px solid #007acc; border-radius: 6px; margin-bottom: 20px; }
-    .progress-counter { font-weight: bold; font-size: 18px; color: #28a745; margin-top: 10px; }
-    .input-practice { width: 60%; padding: 12px; font-size: 18px; margin-top: 10px; border-radius: 6px; border: 2px solid #ccc; }
-    .phonetic-text { color: #d9534f; font-weight: normal; margin-left: 8px; }
-
-    /* Daily Routine Styles */
-    .routine-header { font-size: 20px; color: #007acc; font-weight: bold; margin-bottom: 15px; }
-    .split-container { display: flex; gap: 20px; margin-top: 15px; }
-    .split-column { flex: 1; width: 50%; }
-    .routine-box { background: #fafafa; border: 1px solid #ddd; padding: 15px; border-radius: 6px; margin-bottom: 15px; font-size: 15px; line-height: 1.6; white-space: pre-wrap; min-height: 320px; }
-
-    /* Audio Player Styles */
-    .audio-player-card { background: #eef7ee; border: 1px solid #28a745; padding: 15px; border-radius: 6px; margin-top: 10px; }
-    .audio-controls { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
-    .scrub-bar { flex: 1; height: 8px; cursor: pointer; }
-
-    /* Grammar Styles */
-    .rule-card { background: #eef6fc; border-left: 5px solid #007acc; padding: 18px; border-radius: 6px; margin-bottom: 20px; line-height: 1.5; }
-    .grammar-exercise-box { background: #fdfdfd; border: 1px solid #ccc; padding: 20px; border-radius: 6px; margin-top: 15px; }
-    .feedback-box { margin-top: 15px; padding: 15px; border-radius: 6px; white-space: pre-wrap; font-size: 15px; line-height: 1.6; display: none; }
-    .feedback-correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .feedback-incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCF / TEF French Master Application</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 80px;
+        }
+        .main-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-top: 20px;
+        }
+        .nav-pills .nav-link {
+            color: #495057;
+            font-weight: 600;
+            margin-right: 8px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+            color: #ffffff;
+        }
+        .result-box {
+            background-color: #f1f3f5;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 120px;
+            white-space: pre-wrap;
+        }
+        .phonetic {
+            color: #d63384;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>TCF / TEF French Master Application</h1>
+<div class="container my-4">
+    <h2 class="fw-bold mb-4">TCF / TEF French Master Application</h2>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('translator', this)">Tab 1: Translator & Audio</button>
-    <button class="tab-btn" onclick="switchTab('practice', this)">Tab 2: 10-Repetition Practice</button>
-    <button class="tab-btn" onclick="switchTab('routine', this)">Tab 3: Daily Routines</button>
-    <button class="tab-btn" onclick="switchTab('grammar', this)">Tab 4: Grammar Module</button>
-  </div>
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab1-tab" data-bs-toggle="pill" data-bs-target="#tab1" type="button" role="tab">Tab 1: Translator & Audio</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab2-tab" data-bs-toggle="pill" data-bs-target="#tab2" type="button" role="tab">Tab 2: 10-Repetition Practice</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab3-tab" data-bs-toggle="pill" data-bs-target="#tab3" type="button" role="tab">Tab 3: Daily Routines</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab4-tab" data-bs-toggle="pill" data-bs-target="#tab4" type="button" role="tab">Tab 4: Grammar Module</button>
+        </li>
+    </ul>
 
-  <!-- TAB 1: TRANSLATOR -->
-  <div id="translator" class="tab-content active">
-    <h2>English to French Translator</h2>
-    <textarea id="englishText" placeholder="Type English phrase or text here..."></textarea><br>
-    <button class="action-btn" onclick="translateText()">Translate to French</button>
-    
-    <h3>French Translation:</h3>
-    <div id="frenchOutput" class="output-box">Your translation will appear here...</div>
-    <button id="tab1AudioBtn" class="action-btn" style="background:#28a745;" onclick="toggleAudio('frenchOutput', 'tab1AudioBtn')">🔊 Listen Pronunciation</button>
-  </div>
+    <div class="tab-content" id="pills-tabContent">
 
-  <!-- TAB 2: REPETITION DRILLS -->
-  <div id="practice" class="tab-content">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h2>Vocabulary Repetition Practice (A1 -> B2)</h2>
-      <button class="action-btn" style="background: #dc3545; font-size: 13px;" onclick="resetPracticeProgress()">🔄 Reset Vocabulary Progress</button>
-    </div>
-    
-    <div class="word-card">
-      <span id="wordLevel" style="background: #007acc; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">LEVEL</span>
-      <h2 style="margin: 10px 0 5px 0;">
-        <span id="targetWord">Loading word...</span>
-        <span id="targetPhonetic" class="phonetic-text">(pronunciation)</span>
-      </h2>
-      <p id="targetTranslation" style="color: #666; font-style: italic;">English Translation</p>
-      <button id="tab2AudioBtn" class="action-btn" style="background: #6c757d; padding: 5px 10px; font-size: 13px;" onclick="toggleAudio('targetWord', 'tab2AudioBtn')">🔊 Pronounce Word</button>
-    </div>
-
-    <p>Type the target word <strong>10 times</strong> to unlock the next word:</p>
-    <input type="text" id="typeInput" class="input-practice" placeholder="Type the French word here..." onkeyup="checkTyping(event)">
-    
-    <div class="progress-counter">
-      Completed: <span id="count">0</span> / 10
-    </div>
-
-    <br>
-    <button id="nextBtn" class="action-btn" style="background: #28a745;" onclick="nextWord()" disabled>Next Word ➔</button>
-  </div>
-
-  <!-- TAB 3: ROUTINE WITH WORKING SCRUB BAR -->
-  <div id="routine" class="tab-content">
-    <h2>Daily Routine Reading & Vocabulary Generator</h2>
-    <button class="action-btn" style="background: #17a2b8;" onclick="loadDailyRoutine()">🎲 Generate New Daily Paragraph</button>
-    
-    <div style="margin-top: 20px;">
-      <div class="routine-header" id="routineDateHeader">Date: Loading...</div>
-      
-      <div class="split-container">
-        <div class="split-column">
-          <h3>English Daily Routine:</h3>
-          <div class="routine-box" id="routineEnglish">Click generate to load routine...</div>
-        </div>
-
-        <div class="split-column">
-          <h3>French Translation:</h3>
-          <div class="routine-box" style="background: #eef7ee; border-color: #28a745;" id="routineFrench">Translation will appear here...</div>
-          
-          <div class="audio-player-card">
-            <strong>🔊 Interactive Audio Player (With Scrub Bar)</strong>
-            <div class="audio-controls">
-              <button id="routinePlayBtn" class="action-btn" style="margin-top:0; background:#28a745;" onclick="toggleRoutineSpeech()">▶️ Play</button>
-              <input type="range" id="routineScrubBar" class="scrub-bar" value="0" min="0" max="100" oninput="seekRoutineSpeech(this.value)">
-              <span id="audioTime">0%</span>
+        <!-- TAB 1: TRANSLATOR & AUDIO -->
+        <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+            <div class="main-card">
+                <h4 class="fw-bold mb-3">English to French Translator</h4>
+                <div class="mb-3">
+                    <textarea id="translator-input" class="form-control" rows="4" placeholder="Type English phrase or text here..."></textarea>
+                </div>
+                <button class="btn btn-primary mb-3" onclick="translateTab1()">Translate to French</button>
+                
+                <h6 class="fw-bold">French Translation:</h6>
+                <div id="translator-output" class="result-box mb-3">Your translation will appear here...</div>
+                <button class="btn btn-success" onclick="speakText('translator-output')">🔊 Listen Pronunciation</button>
             </div>
-          </div>
         </div>
-      </div>
+
+        <!-- TAB 2: 10-REPETITION PRACTICE -->
+        <div class="tab-pane fade" id="tab2" role="tabpanel">
+            <div class="main-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold m-0">Vocabulary Repetition Practice (A1 -> B2)</h4>
+                    <button class="btn btn-danger btn-sm" onclick="resetVocabProgress()">🔄 Reset Vocabulary Progress</button>
+                </div>
+                
+                <div class="p-4 border rounded bg-light mb-3">
+                    <span class="badge bg-info text-dark mb-2" id="vocab-level">A1</span>
+                    <h2 class="fw-bold text-dark display-6" id="vocab-word">Bonjour <span class="phonetic" id="vocab-phonetic">(bon-zhoor)</span></h2>
+                    <p class="text-muted fs-5 mb-3" id="vocab-meaning">English: hello</p>
+                    <button class="btn btn-secondary btn-sm" onclick="speakText('vocab-word')">🔊 Pronounce Word</button>
+                </div>
+
+                <label class="form-label fw-bold">Type the target word <span class="text-danger">10 times</span> to unlock the next word:</label>
+                <input type="text" id="vocab-input" class="form-control form-control-lg mb-2" placeholder="Type the French word here..." onkeyup="checkVocabInput(event)">
+                <div class="fw-bold text-success fs-5" id="vocab-counter">Completed: 0 / 10</div>
+            </div>
+        </div>
+
+        <!-- TAB 3: DAILY ROUTINES -->
+        <div class="tab-pane fade" id="tab3" role="tabpanel">
+            <div class="main-card">
+                <h4 class="fw-bold mb-3">Daily Routine Reading & Vocabulary Generator</h4>
+                <button class="btn btn-info text-white mb-3" onclick="generateNewRoutine()">🎲 Generate New Daily Paragraph</button>
+                <h6 id="current-date-heading" class="text-primary fw-bold mb-3"></h6>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold">English Daily Routine:</h6>
+                        <div id="english-routine-box" class="result-box bg-white border">Click generate above...</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold">French Translation:</h6>
+                        <div id="french-routine-box" class="result-box bg-light border text-dark">French translation will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: GRAMMAR MODULE -->
+        <div class="tab-pane fade" id="tab4" role="tabpanel">
+            <div class="main-card">
+                <h4 class="fw-bold mb-3">Interactive French Grammar Module (Unlimited Practice)</h4>
+                <label class="form-label fw-bold">Select Grammar Topic:</label>
+                <select id="grammar-topic-select" class="form-select mb-4" onchange="loadGrammarTopic()">
+                    <option value="demonstrative">Adjectifs Démonstratifs (Ce, Cet, Cette, Ces) (A1-A2)</option>
+                    <option value="possessive">Adjectifs Possessifs (Mon, Ma, Mes...) (A1-A2)</option>
+                    <option value="passerose">Passé Composé vs Imparfait (B1-B2)</option>
+                    <option value="subjunctive">Le Subjonctif Présent (B1-B2)</option>
+                </select>
+
+                <div class="border rounded p-3 mb-4 bg-light">
+                    <h5 class="fw-bold text-primary" id="grammar-title">Adjectifs Démonstratifs (Ce, Cet, Cette, Ces)</h5>
+                    <p class="mb-1" id="grammar-rule"><strong>Rule:</strong> Use 'ce' (masc. singular), 'cet' (masc. singular before vowel/silent h), 'cette' (fem. singular), 'ces' (plural).</p>
+                    <p class="mb-2" id="grammar-formula"><strong>Formula:</strong> ce / cet / cette / ces + Noun</p>
+                    <div id="grammar-examples">
+                        <strong>Examples:</strong>
+                        <ul>
+                            <li>Cet homme est gentil.</li>
+                            <li>Cette maison est grande.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-  </div>
+</div>
 
-  <!-- TAB 4: UNLIMITED GRAMMAR MODULE -->
-  <div id="grammar" class="tab-content">
-    <h2>Interactive French Grammar Module (Unlimited Practice)</h2>
-    
-    <label for="grammarTopicSelect"><strong>Select Grammar Topic:</strong></label>
-    <select id="grammarTopicSelect" style="padding: 8px; font-size: 16px; margin-bottom: 15px;" onchange="loadGrammarTopic()">
-    </select>
-
-    <div class="rule-card">
-      <h3 id="grammarTitle" style="margin-top:0;">Topic Title</h3>
-      <p><strong>Rule:</strong> <span id="grammarRule">Rule text...</span></p>
-      <p><strong>Formula:</strong> <code id="grammarFormula" style="background: #fff; padding: 3px 6px; border-radius: 4px;">Formula</code></p>
-      <p><strong>Examples:</strong></p>
-      <ul id="grammarExamples"></ul>
-    </div>
-
-    <div class="grammar-exercise-box">
-      <h3>Practice Exercise #<span id="currentExNum">1</span> (Unlimited Drills)</h3>
-      <p id="grammarSentence" style="font-size: 18px; font-weight: bold;">Loading sentence...</p>
-      
-      <input type="text" id="grammarInput" class="input-practice" style="width: 50%;" placeholder="Type your answer here..." onkeyup="handleGrammarKey(event)">
-      <br>
-      <button id="grammarSubmitBtn" class="action-btn" onclick="processGrammarStep()">Submit Answer</button>
-
-      <div id="grammarFeedback" class="feedback-box"></div>
-      <button id="tab4AudioBtn" class="action-btn" style="background: #28a745; display: none; margin-top: 10px;" onclick="toggleAudio('grammarSentence', 'tab4AudioBtn')">🔊 Listen Complete Sentence</button>
-    </div>
-  </div>
-
-  <script>
-    let vocabList = [];
-    let currentIndex = 0;
-    let successCount = 0;
-
-    let currentUtterance = null;
-    let isSpeaking = false;
-    let isPaused = false;
-    let activeAudioBtn = null;
-
-    let routineUtterance = null;
-    let routineText = "";
-    let routineInterval = null;
-    let routineProgress = 0;
-    let isRoutineSpeaking = false;
-
-    let grammarData = {};
-    let currentTopicKey = "";
-    let currentExercise = null;
-    let exerciseStreak = 1;
-    let grammarStep = "submit";
-
-    window.onload = async () => {
-      // Load saved progress from localStorage if present
-      const savedIndex = localStorage.getItem('tab2_currentIndex');
-      const savedCount = localStorage.getItem('tab2_successCount');
-      if (savedIndex !== null) currentIndex = parseInt(savedIndex, 10);
-      if (savedCount !== null) successCount = parseInt(savedCount, 10);
-
-      const resVocab = await fetch('/get_vocab');
-      vocabList = await resVocab.json();
-      loadWord();
-      loadDailyRoutine();
-
-      const resGrammar = await fetch('/get_grammar_topics');
-      grammarData = await resGrammar.json();
-      populateGrammarDropdown();
-    };
-
-    function saveTab2Progress() {
-      localStorage.setItem('tab2_currentIndex', currentIndex);
-      localStorage.setItem('tab2_successCount', successCount);
-    }
-
-    function resetPracticeProgress() {
-      if (confirm("Reset vocabulary progress back to word 1?")) {
-        currentIndex = 0;
-        successCount = 0;
-        saveTab2Progress();
-        loadWord();
-      }
-    }
-
-    function switchTab(tabId, btn) {
-      stopAllAudio();
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      btn.classList.add('active');
-    }
-
-    function stopAllAudio() {
-      window.speechSynthesis.cancel();
-      clearInterval(routineInterval);
-      isSpeaking = false;
-      isPaused = false;
-      isRoutineSpeaking = false;
-      if (activeAudioBtn) activeAudioBtn.innerText = "🔊 Listen";
-      document.getElementById('routinePlayBtn').innerText = "▶️ Play";
-      document.getElementById('routineScrubBar').value = 0;
-      document.getElementById('audioTime').innerText = "0%";
-    }
-
-    function toggleAudio(elementId, btnId) {
-      const text = document.getElementById(elementId).innerText;
-      const btn = document.getElementById(btnId);
-
-      if (!text || text.includes("Loading")) return;
-
-      if (isSpeaking && activeAudioBtn === btn) {
-        if (isPaused) {
-          window.speechSynthesis.resume();
-          isPaused = false;
-          btn.innerText = "⏸️ Pause";
-        } else {
-          window.speechSynthesis.pause();
-          isPaused = true;
-          btn.innerText = "▶️ Resume";
-        }
-        return;
-      }
-
-      stopAllAudio();
-      activeAudioBtn = btn;
-
-      currentUtterance = new SpeechSynthesisUtterance(text);
-      currentUtterance.lang = 'fr-FR';
-
-      currentUtterance.onstart = () => {
-        isSpeaking = true;
-        isPaused = false;
-        btn.innerText = "⏸️ Pause";
-      };
-
-      currentUtterance.onend = () => {
-        isSpeaking = false;
-        isPaused = false;
-        btn.innerText = "🔊 Listen";
-      };
-
-      window.speechSynthesis.speak(currentUtterance);
-    }
-
-    async function translateText() {
-      const text = document.getElementById('englishText').value;
-      const response = await fetch('/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text })
-      });
-      const data = await response.json();
-      document.getElementById('frenchOutput').innerText = data.translated;
-    }
-
-    function loadWord() {
-      if (vocabList.length === 0) return;
-      if (currentIndex >= vocabList.length) currentIndex = 0;
-      
-      const item = vocabList[currentIndex];
-      
-      document.getElementById('targetWord').innerText = item.word;
-      document.getElementById('targetPhonetic').innerText = "(" + item.phonetic + ")";
-      document.getElementById('targetTranslation').innerText = "English: " + item.translation;
-      document.getElementById('wordLevel').innerText = item.level;
-      
-      document.getElementById('count').innerText = successCount;
-      document.getElementById('typeInput').value = "";
-
-      if (successCount >= 10) {
-        document.getElementById('nextBtn').disabled = false;
-        document.getElementById('typeInput').placeholder = "10/10 complete! Click Next Word.";
-      } else {
-        document.getElementById('nextBtn').disabled = true;
-        document.getElementById('typeInput').placeholder = "Type the French word here...";
-      }
-
-      document.getElementById('typeInput').focus();
-    }
-
-    function checkTyping(event) {
-      if (event.key === 'Enter') {
-        const input = document.getElementById('typeInput').value.trim().toLowerCase();
-        const target = vocabList[currentIndex].word.toLowerCase();
-
-        if (input === target) {
-          successCount++;
-          document.getElementById('count').innerText = successCount;
-          document.getElementById('typeInput').value = "";
-          toggleAudio('targetWord', 'tab2AudioBtn');
-
-          saveTab2Progress();
-
-          if (successCount >= 10) {
-            document.getElementById('nextBtn').disabled = false;
-            document.getElementById('typeInput').placeholder = "10/10 complete! Click Next Word.";
-          }
-        }
-      }
-    }
-
-    function nextWord() {
-      if (currentIndex < vocabList.length - 1) {
-        currentIndex++;
-        successCount = 0;
-        saveTab2Progress();
-        loadWord();
-      } else {
-        alert("🎉 Congratulations! You completed all the words!");
-      }
-    }
-
-    async function loadDailyRoutine() {
-      stopAllAudio();
-      document.getElementById('routineEnglish').innerText = "Generating new paragraph...";
-      document.getElementById('routineFrench').innerText = "Translating new paragraph...";
-      
-      const res = await fetch('/get_daily_routine');
-      const data = await res.json();
-      
-      document.getElementById('routineDateHeader').innerText = "📅 Today: " + data.day + ", " + data.date;
-      document.getElementById('routineEnglish').innerText = data.english;
-      document.getElementById('routineFrench').innerText = data.french;
-      routineText = data.french;
-    }
-
-    function toggleRoutineSpeech() {
-      const playBtn = document.getElementById('routinePlayBtn');
-
-      if (isRoutineSpeaking) {
-        if (window.speechSynthesis.paused) {
-          window.speechSynthesis.resume();
-          playBtn.innerText = "⏸️ Pause";
-        } else {
-          window.speechSynthesis.pause();
-          playBtn.innerText = "▶️ Resume";
-        }
-      } else {
-        startRoutineSpeechFromPercentage(routineProgress);
-      }
-    }
-
-    function startRoutineSpeechFromPercentage(percent) {
-      window.speechSynthesis.cancel();
-      clearInterval(routineInterval);
-
-      const startIndex = Math.floor((percent / 100) * routineText.length);
-      const textToSpeak = routineText.substring(startIndex);
-
-      routineUtterance = new SpeechSynthesisUtterance(textToSpeak);
-      routineUtterance.lang = 'fr-FR';
-
-      const totalChars = routineText.length;
-
-      routineUtterance.onboundary = (event) => {
-        const currentAbsoluteIndex = startIndex + event.charIndex;
-        routineProgress = Math.floor((currentAbsoluteIndex / totalChars) * 100);
-        document.getElementById('routineScrubBar').value = routineProgress;
-        document.getElementById('audioTime').innerText = routineProgress + "%";
-      };
-
-      routineUtterance.onstart = () => {
-        isRoutineSpeaking = true;
-        document.getElementById('routinePlayBtn').innerText = "⏸️ Pause";
-      };
-
-      routineUtterance.onend = () => {
-        isRoutineSpeaking = false;
-        routineProgress = 0;
-        document.getElementById('routinePlayBtn').innerText = "▶️ Play";
-        document.getElementById('routineScrubBar').value = 0;
-        document.getElementById('audioTime').innerText = "0%";
-      };
-
-      window.speechSynthesis.speak(routineUtterance);
-    }
-
-    function seekRoutineSpeech(val) {
-      routineProgress = parseInt(val);
-      document.getElementById('audioTime').innerText = routineProgress + "%";
-      if (isRoutineSpeaking) {
-        startRoutineSpeechFromPercentage(routineProgress);
-      }
-    }
-
-    function populateGrammarDropdown() {
-      const select = document.getElementById('grammarTopicSelect');
-      select.innerHTML = "";
-      for (let key in grammarData) {
-        let opt = document.createElement('option');
-        opt.value = key;
-        opt.innerText = grammarData[key].title + " (" + grammarData[key].level + ")";
-        select.appendChild(opt);
-      }
-      currentTopicKey = select.value;
-      loadGrammarTopic();
-    }
-
-    function loadGrammarTopic() {
-      stopAllAudio();
-      currentTopicKey = document.getElementById('grammarTopicSelect').value;
-      const topic = grammarData[currentTopicKey];
-
-      document.getElementById('grammarTitle').innerText = topic.title;
-      document.getElementById('grammarRule').innerText = topic.rule;
-      document.getElementById('grammarFormula').innerText = topic.formula;
-
-      const exList = document.getElementById('grammarExamples');
-      exList.innerHTML = "";
-      topic.examples.forEach(ex => {
-        let li = document.createElement('li');
-        li.innerText = ex;
-        exList.appendChild(li);
-      });
-
-      exerciseStreak = 1;
-      fetchNextExercise();
-    }
-
-    async function fetchNextExercise() {
-      stopAllAudio();
-      const res = await fetch(`/get_grammar_exercise/${currentTopicKey}`);
-      currentExercise = await res.json();
-
-      document.getElementById('currentExNum').innerText = exerciseStreak;
-      document.getElementById('grammarSentence').innerText = currentExercise.sentence;
-
-      document.getElementById('grammarInput').value = "";
-      document.getElementById('grammarInput').disabled = false;
-      document.getElementById('grammarInput').focus();
-
-      document.getElementById('grammarFeedback').style.display = "none";
-      document.getElementById('tab4AudioBtn').style.display = "none";
-
-      document.getElementById('grammarSubmitBtn').innerText = "Submit Answer";
-      grammarStep = "submit";
-    }
-
-    function handleGrammarKey(event) {
-      if (event.key === 'Enter') {
-        processGrammarStep();
-      }
-    }
-
-    function processGrammarStep() {
-      if (grammarStep === "submit") {
-        const userInput = document.getElementById('grammarInput').value.trim().toLowerCase();
-        const correctAnswer = currentExercise.answer.toLowerCase();
-        const fbBox = document.getElementById('grammarFeedback');
-
-        let parts = currentExercise.sentence.split('________');
-        let fullSentence = currentExercise.sentence;
-        if (parts.length === 2) {
-            let left = parts[0].trim();
-            let right = parts[1].replace(/\(.*\)/, '').trim();
-            fullSentence = left + " " + currentExercise.answer + " " + right;
-        }
-
-        document.getElementById('grammarSentence').innerText = fullSentence;
-
-        const englishText = "🇬🇧 English Translation:\n\"" + currentExercise.english + "\"";
-        const explanationText = "💡 Explanation:\n" + currentExercise.explanation;
-
-        if (userInput === correctAnswer) {
-          fbBox.className = "feedback-box feedback-correct";
-          fbBox.innerText = "✅ Correct!\n\n" + englishText + "\n\n" + explanationText;
-        } else {
-          fbBox.className = "feedback-box feedback-incorrect";
-          fbBox.innerText = "❌ Incorrect. Correct Answer: \"" + currentExercise.answer + "\"\n\n" + englishText + "\n\n" + explanationText;
-        }
-
-        fbBox.style.display = "block";
-        document.getElementById('tab4AudioBtn').style.display = "inline-block";
-        document.getElementById('grammarInput').disabled = true;
-
-        document.getElementById('grammarSubmitBtn').innerText = "Next Sentence ➔";
-        grammarStep = "next";
-      } else {
-        exerciseStreak++;
-        fetchNextExercise();
-      }
-    }
-  </script>
 <!-- Custom Buy Me a Coffee Floating Button -->
 <a href="https://buymeacoffee.com/frenchprep" target="_blank" rel="noopener noreferrer" style="position: fixed; bottom: 20px; right: 20px; background-color: #FFDD00; color: #000000; font-family: 'Cookie', cursive, sans-serif; font-weight: bold; padding: 10px 18px; border-radius: 50px; text-decoration: none; font-size: 16px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); z-index: 9999; display: flex; align-items: center; gap: 8px;">
   <span style="font-size: 20px;">☕</span>
   <span>Buy me a coffee</span>
 </a>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.bundle.min.js"></script>
+
+<script>
+    // TAB 1 TRANSLATION FUNCTION
+    async function translateTab1() {
+        const text = document.getElementById('translator-input').value;
+        const outputBox = document.getElementById('translator-output');
+        
+        if (!text.trim()) {
+            outputBox.innerText = "Please enter some text to translate.";
+            return;
+        }
+
+        outputBox.innerText = "Translating...";
+
+        try {
+            const response = await fetch('/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+
+            const data = await response.json();
+            if (data.translation) {
+                outputBox.innerText = data.translation;
+            } else {
+                outputBox.innerText = "Translation error.";
+            }
+        } catch (err) {
+            outputBox.innerText = "Translation error.";
+        }
+    }
+
+    // AUDIO PRONUNCIATION SYNTHESIS
+    function speakText(elementId) {
+        let text = "";
+        if (document.getElementById(elementId)) {
+            text = document.getElementById(elementId).innerText || document.getElementById(elementId).value;
+        } else {
+            text = elementId;
+        }
+
+        if (!text || text === "Your translation will appear here...") return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'fr-FR';
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // TAB 2 VOCABULARY DATA & REPETITION LOGIC
+    const vocabList = [
+        { word: "Bonjour", phonetic: "(bon-zhoor)", meaning: "hello", level: "A1" },
+        { word: "Merci", phonetic: "(mair-see)", meaning: "thank you", level: "A1" },
+        { word: "S'il vous plaît", phonetic: "(seel voo pleh)", meaning: "please", level: "A1" },
+        { word: "Au revoir", phonetic: "(oh ruh-vwahr)", meaning: "goodbye", level: "A1" },
+        { word: "Travailler", phonetic: "(trah-vy-yay)", meaning: "to work", level: "A2" },
+        { word: "Comprendre", phonetic: "(kohm-prahn-druh)", meaning: "to understand", level: "A2" },
+        { word: "Développer", phonetic: "(day-vloh-pay)", meaning: "to develop", level: "B1" },
+        { word: "Améliorer", phonetic: "(ah-may-lee-oh-ray)", meaning: "to improve", level: "B2" }
+    ];
+
+    let currentVocabIndex = 0;
+    let completedCount = 0;
+
+    function loadVocabWord() {
+        const item = vocabList[currentVocabIndex];
+        document.getElementById('vocab-level').innerText = item.level;
+        document.getElementById('vocab-word').innerHTML = `${item.word} <span class="phonetic">${item.phonetic}</span>`;
+        document.getElementById('vocab-meaning').innerText = `English: ${item.meaning}`;
+        document.getElementById('vocab-counter').innerText = `Completed: ${completedCount} / 10`;
+        document.getElementById('vocab-input').value = "";
+    }
+
+    function checkVocabInput(event) {
+        if (event.key === 'Enter') {
+            const inputVal = document.getElementById('vocab-input').value.trim();
+            const targetWord = vocabList[currentVocabIndex].word;
+
+            if (inputVal.toLowerCase() === targetWord.toLowerCase()) {
+                completedCount++;
+                document.getElementById('vocab-counter').innerText = `Completed: ${completedCount} / 10`;
+                document.getElementById('vocab-input').value = "";
+
+                if (completedCount >= 10) {
+                    alert(`Great job! You mastered '${targetWord}'. Unlocking next word!`);
+                    completedCount = 0;
+                    currentVocabIndex = (currentVocabIndex + 1) % vocabList.length;
+                    loadVocabWord();
+                }
+            } else {
+                alert(`Incorrect! Please type exact French word: ${targetWord}`);
+            }
+        }
+    }
+
+    function resetVocabProgress() {
+        currentVocabIndex = 0;
+        completedCount = 0;
+        loadVocabWord();
+    }
+
+    // TAB 3 DAILY ROUTINES LOGIC & PARAGRAPH-SAFE TRANSLATION
+    const routineParagraphs = [
+        [
+            "I got up early today at 6:00 AM. I made a hot cup of black coffee and read the morning news on my tablet for fifteen minutes.",
+            "I arrived at my workplace around 8:45 AM and greeted my colleagues. The morning flew by with consecutive meetings and responding to urgent emails.",
+            "By 6:00 PM, I went for a quick jog in the park. The evening weather was pleasant and crisp.",
+            "Before going to bed, I organized my desk, wrote down my goals for tomorrow, and spent twenty minutes reading a fiction book."
+        ],
+        [
+            "Every morning, I start my day with a 20-minute meditation session followed by a light breakfast.",
+            "During my commute, I listen to French podcasts to sharpen my listening skills for the TCF Canada exam.",
+            "In the afternoon, I collaborate with my team members on project deliverables and schedule client updates.",
+            "After dinner, I practice French writing prompts and review key vocabulary words."
+        ]
+    ];
+
+    async function generateNewRoutine() {
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date-heading').innerText = `Today: ${new Date().toLocaleDateString('en-US', dateOptions)}`;
+
+        const randomIndex = Math.floor(Math.random() * routineParagraphs.length);
+        const selectedParagraphs = routineParagraphs[randomIndex];
+
+        // Format English display with paragraph spacing
+        document.getElementById('english-routine-box').innerText = selectedParagraphs.join('\n\n');
+        document.getElementById('french-routine-box').innerText = "Translating paragraphs...";
+
+        try {
+            const response = await fetch('/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: selectedParagraphs }) // Sends array of strings to backend
+            });
+
+            const data = await response.json();
+            if (data.translation && Array.isArray(data.translation)) {
+                document.getElementById('french-routine-box').innerText = data.translation.join('\n\n');
+            } else if (data.translation) {
+                document.getElementById('french-routine-box').innerText = data.translation;
+            } else {
+                document.getElementById('french-routine-box').innerText = "Translation error.";
+            }
+        } catch (err) {
+            document.getElementById('french-routine-box').innerText = "Translation error.";
+        }
+    }
+
+    // TAB 4 GRAMMAR TOPIC SWITCHER
+    const grammarData = {
+        demonstrative: {
+            title: "Adjectifs Démonstratifs (Ce, Cet, Cette, Ces)",
+            rule: "<strong>Rule:</strong> Use 'ce' (masc. singular), 'cet' (masc. singular before vowel/silent h), 'cette' (fem. singular), 'ces' (plural).",
+            formula: "<strong>Formula:</strong> ce / cet / cette / ces + Noun",
+            examples: "<ul><li>Cet homme est gentil.</li><li>Cette maison est grande.</li></ul>"
+        },
+        possessive: {
+            title: "Adjectifs Possessifs (Mon, Ma, Mes...)",
+            rule: "<strong>Rule:</strong> Matches gender and number of the owned noun, not the owner.",
+            formula: "<strong>Formula:</strong> mon/ma/mes, ton/ta/tes, son/sa/ses...",
+            examples: "<ul><li>Mon amie (fem. before vowel).</li><li>Mes livres sont ici.</li></ul>"
+        },
+        passerose: {
+            title: "Passé Composé vs Imparfait",
+            rule: "<strong>Rule:</strong> Passé composé for completed actions; Imparfait for ongoing past actions/habits.",
+            formula: "<strong>Formula:</strong> Avoir/Être + Participe Passé vs Stem + -ais, -ais, -ait...",
+            examples: "<ul><li>J'ai mangé quand il est arrivé.</li><li>Il faisait beau tous les jours.</li></ul>"
+        },
+        subjunctive: {
+            title: "Le Subjonctif Présent",
+            rule: "<strong>Rule:</strong> Used after verbs expressing desire, emotion, necessity, or doubt with 'que'.",
+            formula: "<strong>Formula:</strong> Il faut que + sujet + verbe (subjonctif)",
+            examples: "<ul><li>Il faut que tu fasses tes devoirs.</li><li>Je veux qu'il vienne.</li></ul>"
+        }
+    };
+
+    function loadGrammarTopic() {
+        const key = document.getElementById('grammar-topic-select').value;
+        const topic = grammarData[key];
+        document.getElementById('grammar-title').innerText = topic.title;
+        document.getElementById('grammar-rule').innerHTML = topic.rule;
+        document.getElementById('grammar-formula').innerHTML = topic.formula;
+        document.getElementById('grammar-examples').innerHTML = `<strong>Examples:</strong>${topic.examples}`;
+    }
+
+    // INITIALIZE PAGE DATA
+    window.onload = function() {
+        loadVocabWord();
+    };
+</script>
 </body>
 </html>
