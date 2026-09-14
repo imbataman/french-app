@@ -85,17 +85,17 @@
             <div class="main-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="fw-bold m-0">Vocabulary Repetition Practice (A1 -> B2)</h4>
-                    <button class="btn btn-danger btn-sm" onclick="resetVocabProgress()">🔄 Reset Vocabulary Progress</button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadVocabWord()">🎲 Skip / Next Word</button>
                 </div>
                 
                 <div class="p-4 border rounded bg-light mb-3">
-                    <span class="badge bg-info text-dark mb-2" id="vocab-level">A1</span>
-                    <h2 class="fw-bold text-dark display-6" id="vocab-word">Bonjour <span class="phonetic" id="vocab-phonetic">(bon-zhoor)</span></h2>
-                    <p class="text-muted fs-5 mb-3" id="vocab-meaning">English: hello</p>
+                    <span class="badge bg-info text-dark mb-2" id="vocab-level">Loading...</span>
+                    <h2 class="fw-bold text-dark display-6" id="vocab-word">Loading...</h2>
+                    <p class="text-muted fs-5 mb-3" id="vocab-meaning">English: ...</p>
                     <button class="btn btn-secondary btn-sm" onclick="speakText('vocab-word')">🔊 Pronounce Word</button>
                 </div>
 
-                <label class="form-label fw-bold">Type the target word <span class="text-danger">10 times</span> to unlock the next word:</label>
+                <label class="form-label fw-bold">Type the target word <span class="text-danger">10 times</span> (press Enter each time) to unlock the next word:</label>
                 <input type="text" id="vocab-input" class="form-control form-control-lg mb-2" placeholder="Type the French word here..." onkeyup="checkVocabInput(event)">
                 <div class="fw-bold text-success fs-5" id="vocab-counter">Completed: 0 / 10</div>
             </div>
@@ -152,7 +152,7 @@
 </div>
 
 <!-- Custom Buy Me a Coffee Floating Button -->
-<a href="https://buymeacoffee.com/frenchprep" target="_blank" rel="noopener noreferrer" style="position: fixed; bottom: 20px; right: 20px; background-color: #FFDD00; color: #000000; font-family: 'Cookie', cursive, sans-serif; font-weight: bold; padding: 10px 18px; border-radius: 50px; text-decoration: none; font-size: 16px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); z-index: 9999; display: flex; align-items: center; gap: 8px;">
+<a href="https://buymeacoffee.com/frenchprep" target="_blank" rel="noopener noreferrer" style="position: fixed; bottom: 20px; right: 20px; background-color: #FFDD00; color: #000000; font-family: 'Segoe UI', sans-serif; font-weight: bold; padding: 12px 20px; border-radius: 50px; text-decoration: none; font-size: 16px; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.25); z-index: 9999; display: flex; align-items: center; gap: 8px;">
   <span style="font-size: 20px;">☕</span>
   <span>Buy me a coffee</span>
 </a>
@@ -160,7 +160,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.bundle.min.js"></script>
 
 <script>
-    // TAB 1 TRANSLATION FUNCTION
+    // TAB 1: TRANSLATOR
     async function translateTab1() {
         const text = document.getElementById('translator-input').value;
         const outputBox = document.getElementById('translator-output');
@@ -190,75 +190,66 @@
         }
     }
 
-    // AUDIO PRONUNCIATION SYNTHESIS
+    // SPEECH SYNTHESIS
     function speakText(elementId) {
         let text = "";
-        if (document.getElementById(elementId)) {
+        if (elementId === 'vocab-word') {
+            text = window.activeTargetWord || "";
+        } else if (document.getElementById(elementId)) {
             text = document.getElementById(elementId).innerText || document.getElementById(elementId).value;
         } else {
             text = elementId;
         }
 
-        if (!text || text === "Your translation will appear here...") return;
+        if (!text || text.includes("Loading") || text === "Your translation will appear here...") return;
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'fr-FR';
         window.speechSynthesis.speak(utterance);
     }
 
-    // TAB 2 VOCABULARY DATA & REPETITION LOGIC
-    const vocabList = [
-        { word: "Bonjour", phonetic: "(bon-zhoor)", meaning: "hello", level: "A1" },
-        { word: "Merci", phonetic: "(mair-see)", meaning: "thank you", level: "A1" },
-        { word: "S'il vous plaît", phonetic: "(seel voo pleh)", meaning: "please", level: "A1" },
-        { word: "Au revoir", phonetic: "(oh ruh-vwahr)", meaning: "goodbye", level: "A1" },
-        { word: "Travailler", phonetic: "(trah-vy-yay)", meaning: "to work", level: "A2" },
-        { word: "Comprendre", phonetic: "(kohm-prahn-druh)", meaning: "to understand", level: "A2" },
-        { word: "Développer", phonetic: "(day-vloh-pay)", meaning: "to develop", level: "B1" },
-        { word: "Améliorer", phonetic: "(ah-may-lee-oh-ray)", meaning: "to improve", level: "B2" }
-    ];
-
-    let currentVocabIndex = 0;
+    // TAB 2: VOCABULARY VIA BACKEND API
     let completedCount = 0;
+    window.activeTargetWord = "";
 
-    function loadVocabWord() {
-        const item = vocabList[currentVocabIndex];
-        document.getElementById('vocab-level').innerText = item.level;
-        document.getElementById('vocab-word').innerHTML = `${item.word} <span class="phonetic">${item.phonetic}</span>`;
-        document.getElementById('vocab-meaning').innerText = `English: ${item.meaning}`;
-        document.getElementById('vocab-counter').innerText = `Completed: ${completedCount} / 10`;
-        document.getElementById('vocab-input').value = "";
+    async function loadVocabWord() {
+        try {
+            const response = await fetch('/api/get-vocab');
+            const item = await response.json();
+            
+            window.activeTargetWord = item.word;
+            completedCount = 0;
+
+            document.getElementById('vocab-level').innerText = item.level;
+            document.getElementById('vocab-word').innerHTML = `${item.word} <span class="phonetic">${item.phonetic}</span>`;
+            document.getElementById('vocab-meaning').innerText = `English: ${item.meaning}`;
+            document.getElementById('vocab-counter').innerText = `Completed: 0 / 10`;
+            document.getElementById('vocab-input').value = "";
+        } catch (err) {
+            console.error("Error loading vocab word:", err);
+        }
     }
 
     function checkVocabInput(event) {
         if (event.key === 'Enter') {
             const inputVal = document.getElementById('vocab-input').value.trim();
-            const targetWord = vocabList[currentVocabIndex].word;
 
-            if (inputVal.toLowerCase() === targetWord.toLowerCase()) {
+            if (inputVal.toLowerCase() === window.activeTargetWord.toLowerCase()) {
                 completedCount++;
                 document.getElementById('vocab-counter').innerText = `Completed: ${completedCount} / 10`;
                 document.getElementById('vocab-input').value = "";
 
                 if (completedCount >= 10) {
-                    alert(`Great job! You mastered '${targetWord}'. Unlocking next word!`);
-                    completedCount = 0;
-                    currentVocabIndex = (currentVocabIndex + 1) % vocabList.length;
+                    alert(`Excellent! You completed '${window.activeTargetWord}'. Loading a new word!`);
                     loadVocabWord();
                 }
             } else {
-                alert(`Incorrect! Please type exact French word: ${targetWord}`);
+                alert(`Incorrect typing! Exact French word to type: ${window.activeTargetWord}`);
             }
         }
     }
 
-    function resetVocabProgress() {
-        currentVocabIndex = 0;
-        completedCount = 0;
-        loadVocabWord();
-    }
-
-    // TAB 3 DAILY ROUTINES LOGIC & PARAGRAPH-SAFE TRANSLATION
+    // TAB 3: DAILY ROUTINES
     const routineParagraphs = [
         [
             "I got up early today at 6:00 AM. I made a hot cup of black coffee and read the morning news on my tablet for fifteen minutes.",
@@ -281,7 +272,6 @@
         const randomIndex = Math.floor(Math.random() * routineParagraphs.length);
         const selectedParagraphs = routineParagraphs[randomIndex];
 
-        // Format English display with paragraph spacing
         document.getElementById('english-routine-box').innerText = selectedParagraphs.join('\n\n');
         document.getElementById('french-routine-box').innerText = "Translating paragraphs...";
 
@@ -289,7 +279,7 @@
             const response = await fetch('/translate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: selectedParagraphs }) // Sends array of strings to backend
+                body: JSON.stringify({ text: selectedParagraphs })
             });
 
             const data = await response.json();
@@ -305,7 +295,7 @@
         }
     }
 
-    // TAB 4 GRAMMAR TOPIC SWITCHER
+    // TAB 4: GRAMMAR TOPICS
     const grammarData = {
         demonstrative: {
             title: "Adjectifs Démonstratifs (Ce, Cet, Cette, Ces)",
@@ -342,7 +332,7 @@
         document.getElementById('grammar-examples').innerHTML = `<strong>Examples:</strong>${topic.examples}`;
     }
 
-    // INITIALIZE PAGE DATA
+    // INITIAL LOAD
     window.onload = function() {
         loadVocabWord();
     };
