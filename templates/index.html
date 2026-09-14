@@ -113,7 +113,7 @@
             </div>
         </div>
 
-        <!-- TAB 4: GRAMMAR MODULE -->
+        <!-- TAB 4: GRAMMAR MODULE WITH EXERCISES & PRONUNCIATION -->
         <div class="tab-pane fade d-none" id="tab4">
             <div class="main-card">
                 <h4 class="fw-bold mb-3">Interactive French Grammar Module</h4>
@@ -125,6 +125,7 @@
                     <option value="subjunctive">Le Subjonctif Présent (B1-B2)</option>
                 </select>
 
+                <!-- Topic Explanation Card -->
                 <div class="border rounded p-3 mb-4 bg-light">
                     <h5 class="fw-bold text-primary" id="grammar-title">Adjectifs Démonstratifs (Ce, Cet, Cette, Ces)</h5>
                     <p class="mb-1" id="grammar-rule"><strong>Rule:</strong> Use 'ce' (masc. singular), 'cet' (masc. singular before vowel/silent h), 'cette' (fem. singular), 'ces' (plural).</p>
@@ -132,9 +133,29 @@
                     <div id="grammar-examples">
                         <strong>Examples:</strong>
                         <ul>
-                            <li>Cet homme est gentil.</li>
-                            <li>Cette maison est grande.</li>
+                            <li>Cet homme est gentil. <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="speakDirect('Cet homme est gentil.')">🔊</button></li>
+                            <li>Cette maison est grande. <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="speakDirect('Cette maison est grande.')">🔊</button></li>
                         </ul>
+                    </div>
+                </div>
+
+                <!-- Fill-In-The-Blank Practice Card -->
+                <div class="border rounded p-4 bg-white shadow-sm">
+                    <h5 class="fw-bold mb-3 text-dark">📝 Fill in the Blanks Practice</h5>
+                    <p class="fs-5" id="exercise-question">Loading exercise...</p>
+                    
+                    <div class="input-group mb-3 style='max-width: 400px;'">
+                        <input type="text" id="exercise-input" class="form-control form-control-lg" placeholder="Type answer here...">
+                        <button class="btn btn-primary btn-lg" onclick="checkGrammarAnswer()">Check Answer</button>
+                    </div>
+
+                    <div id="exercise-feedback" class="fw-bold fs-5 mb-2"></div>
+                    <div id="exercise-correct-wrapper" class="d-none">
+                        <span class="text-muted fs-6">Correct Sentence & Pronunciation:</span>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="fw-bold text-primary fs-5" id="exercise-correct-text"></span>
+                            <button class="btn btn-success btn-sm" onclick="speakDirect(document.getElementById('exercise-correct-text').innerText)">🔊 Pronounce</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -150,20 +171,17 @@
 </a>
 
 <script>
-    // RELIABLE TAB SWITCHING LOGIC
+    // TAB SWITCHING
     function switchTab(tabId, element) {
-        // Hide all tabs
         document.querySelectorAll('.tab-pane').forEach(pane => {
             pane.classList.add('d-none');
             pane.classList.remove('show', 'active');
         });
 
-        // Deactivate all nav buttons
         document.querySelectorAll('#mainTab .nav-link').forEach(btn => {
             btn.classList.remove('active');
         });
 
-        // Activate selected tab
         const targetPane = document.getElementById(tabId);
         if (targetPane) {
             targetPane.classList.remove('d-none');
@@ -172,7 +190,7 @@
         element.classList.add('active');
     }
 
-    // TRANSLATOR
+    // TRANSLATOR TAB 1
     async function translateTab1() {
         const text = document.getElementById('translator-input').value;
         const outputBox = document.getElementById('translator-output');
@@ -192,11 +210,7 @@
             });
 
             const data = await response.json();
-            if (data.translation) {
-                outputBox.innerText = data.translation;
-            } else {
-                outputBox.innerText = "Translation error encountered.";
-            }
+            outputBox.innerText = data.translation || "Translation error.";
         } catch (err) {
             outputBox.innerText = "Error connecting to server.";
         }
@@ -213,8 +227,11 @@
             text = elementId;
         }
 
-        if (!text || text.includes("Loading") || text.includes("Your translation")) return;
+        speakDirect(text);
+    }
 
+    function speakDirect(text) {
+        if (!text || text.includes("Loading") || text.includes("Your translation")) return;
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'fr-FR';
         window.speechSynthesis.speak(utterance);
@@ -265,7 +282,9 @@
     const routineParagraphs = [
         [
             "I got up early today at 6:00 AM. I made a hot cup of black coffee and read the morning news on my tablet for fifteen minutes.",
-            "I arrived at my workplace around 8:45 AM and greeted my colleagues. The morning flew by with consecutive meetings and responding to urgent emails."
+            "I arrived at my workplace around 8:45 AM and greeted my colleagues. The morning flew by with consecutive meetings and responding to urgent emails.",
+            "By 6:00 PM, I went for a quick jog in the park. The evening weather was pleasant and crisp.",
+            "Before going to bed, I organized my desk, wrote down my goals for tomorrow, and spent twenty minutes reading a fiction book."
         ]
     ];
 
@@ -295,45 +314,86 @@
         }
     }
 
-    // TAB 4: GRAMMAR TOPICS
+    // TAB 4: GRAMMAR MODULE WITH INTERACTIVE EXERCISES
     const grammarData = {
         demonstrative: {
             title: "Adjectifs Démonstratifs (Ce, Cet, Cette, Ces)",
             rule: "<strong>Rule:</strong> Use 'ce' (masc. singular), 'cet' (masc. singular before vowel/silent h), 'cette' (fem. singular), 'ces' (plural).",
             formula: "<strong>Formula:</strong> ce / cet / cette / ces + Noun",
-            examples: "<ul><li>Cet homme est gentil.</li><li>Cette maison est grande.</li></ul>"
+            examples: "<ul><li>Cet homme est gentil. <button class='btn btn-sm btn-outline-secondary py-0 px-1' onclick=\"speakDirect('Cet homme est gentil.')\">🔊</button></li><li>Cette maison est grande. <button class='btn btn-sm btn-outline-secondary py-0 px-1' onclick=\"speakDirect('Cette maison est grande.')\">🔊</button></li></ul>",
+            question: "______ homme est très sympathique. (This man is very friendly)",
+            answer: "cet",
+            fullSentence: "Cet homme est très sympathique."
         },
         possessive: {
             title: "Adjectifs Possessifs (Mon, Ma, Mes...)",
             rule: "<strong>Rule:</strong> Matches gender and number of the owned noun, not the owner.",
             formula: "<strong>Formula:</strong> mon/ma/mes, ton/ta/tes, son/sa/ses...",
-            examples: "<ul><li>Mon amie (fem. before vowel).</li><li>Mes livres sont ici.</li></ul>"
+            examples: "<ul><li>Mon amie est canadienne. <button class='btn btn-sm btn-outline-secondary py-0 px-1' onclick=\"speakDirect('Mon amie est canadienne.')\">🔊</button></li><li>Mes livres sont ici. <button class='btn btn-sm btn-outline-secondary py-0 px-1' onclick=\"speakDirect('Mes livres sont ici.')\">🔊</button></li></ul>",
+            question: "J'ai oublié ______ clés sur la table. (I forgot my keys on the table)",
+            answer: "mes",
+            fullSentence: "J'ai oublié mes clés sur la table."
         },
         passerose: {
             title: "Passé Composé vs Imparfait",
             rule: "<strong>Rule:</strong> Passé composé for completed actions; Imparfait for ongoing past actions/habits.",
             formula: "<strong>Formula:</strong> Avoir/Être + Participe Passé vs Stem + -ais, -ais, -ait...",
-            examples: "<ul><li>J'ai mangé quand il est arrivé.</li><li>Il faisait beau tous les jours.</li></ul>"
+            examples: "<ul><li>J'ai mangé un croissant. <button class='btn btn-sm btn-outline-secondary py-0 px-1' onclick=\"speakDirect('J\\'ai mangé un croissant.')\">🔊</button></li><li>Il faisait beau hier. <button class='btn btn-sm btn-outline-secondary py-0 px-1' onclick=\"speakDirect('Il faisait beau hier.')\">🔊</button></li></ul>",
+            question: "Hier soir, nous ______ (manger) au restaurant. (Yesterday evening, we ate at the restaurant)",
+            answer: "avons mangé",
+            fullSentence: "Hier soir, nous avons mangé au restaurant."
         },
         subjunctive: {
             title: "Le Subjonctif Présent",
             rule: "<strong>Rule:</strong> Used after verbs expressing desire, emotion, necessity, or doubt with 'que'.",
             formula: "<strong>Formula:</strong> Il faut que + sujet + verbe (subjonctif)",
-            examples: "<ul><li>Il faut que tu fasses tes devoirs.</li><li>Je veux qu'il vienne.</li></ul>"
+            examples: "<ul><li>Il faut que tu fasses tes devoirs. <button class='btn btn-sm btn-outline-secondary py-0 px-1' onclick=\"speakDirect('Il faut que tu fasses tes devoirs.')\">🔊</button></li><li>Je veux qu'il vienne. <button class='btn btn-sm btn-outline-secondary py-0 px-1' onclick=\"speakDirect('Je veux qu\\'il vienne.')\">🔊</button></li></ul>",
+            question: "Il faut que tu ______ (faire) vos devoirs. (You must do your homework)",
+            answer: "fasses",
+            fullSentence: "Il faut que tu fasses vos devoirs."
         }
     };
 
     function loadGrammarTopic() {
         const key = document.getElementById('grammar-topic-select').value;
         const topic = grammarData[key];
+        
         document.getElementById('grammar-title').innerText = topic.title;
         document.getElementById('grammar-rule').innerHTML = topic.rule;
         document.getElementById('grammar-formula').innerHTML = topic.formula;
         document.getElementById('grammar-examples').innerHTML = `<strong>Examples:</strong>${topic.examples}`;
+
+        // Load fill-in-the-blank question
+        document.getElementById('exercise-question').innerText = topic.question;
+        document.getElementById('exercise-input').value = "";
+        document.getElementById('exercise-feedback').innerText = "";
+        document.getElementById('exercise-correct-wrapper').classList.add('d-none');
+    }
+
+    function checkGrammarAnswer() {
+        const key = document.getElementById('grammar-topic-select').value;
+        const topic = grammarData[key];
+        const userVal = document.getElementById('exercise-input').value.trim().toLowerCase();
+
+        const feedbackEl = document.getElementById('exercise-feedback');
+        const correctWrapper = document.getElementById('exercise-correct-wrapper');
+        const correctTextEl = document.getElementById('exercise-correct-text');
+
+        if (userVal === topic.answer.toLowerCase()) {
+            feedbackEl.className = "fw-bold fs-5 mb-2 text-success";
+            feedbackEl.innerText = "✅ Correct! Well done!";
+        } else {
+            feedbackEl.className = "fw-bold fs-5 mb-2 text-danger";
+            feedbackEl.innerText = `❌ Incorrect. The correct blank answer was: '${topic.answer}'`;
+        }
+
+        correctTextEl.innerText = topic.fullSentence;
+        correctWrapper.classList.remove('d-none');
     }
 
     window.onload = function() {
         loadVocabWord();
+        loadGrammarTopic();
     };
 </script>
 </body>

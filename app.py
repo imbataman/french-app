@@ -34,6 +34,18 @@ VOCAB_DATABASE = {
     ]
 }
 
+# PRE-TRANSLATED DAILY ROUTINES FALLBACK DICTIONARY
+ROUTINE_PRETRANSLATIONS = {
+    "I got up early today at 6:00 AM. I made a hot cup of black coffee and read the morning news on my tablet for fifteen minutes.": 
+        "Je me suis levé tôt aujourd'hui à 6h00. J'ai préparé une tasse de café noir chaud et j'ai lu les actualités du matin sur ma tablette pendant quinze minutes.",
+    "I arrived at my workplace around 8:45 AM and greeted my colleagues. The morning flew by with consecutive meetings and responding to urgent emails.": 
+        "Je suis arrivé à mon lieu de travail vers 8h45 et j'ai salué mes collègues. La matinée s'est envolée avec des réunions consécutives et la réponse aux e-mails urgents.",
+    "By 6:00 PM, I went for a quick jog in the park. The evening weather was pleasant and crisp.": 
+        "À 18h00, je suis allé faire un petit footing dans le parc. Le temps du soir était agréable et frais.",
+    "Before going to bed, I organized my desk, wrote down my goals for tomorrow, and spent twenty minutes reading a fiction book.": 
+        "Avant d'aller au lit, j'ai organisé mon bureau, écrit mes objectifs pour demain et passé vingt minutes à lire un livre de fiction."
+}
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -64,20 +76,29 @@ def translate():
         if isinstance(text_data, list):
             translated_list = []
             for item in text_data:
-                if str(item).strip():
-                    translated_p = mtranslate.translate(str(item), 'fr', 'auto')
-                    translated_list.append(translated_p)
+                clean_str = str(item).strip()
+                if clean_str in ROUTINE_PRETRANSLATIONS:
+                    translated_list.append(ROUTINE_PRETRANSLATIONS[clean_str])
                 else:
-                    translated_list.append("")
+                    try:
+                        translated_p = mtranslate.translate(clean_str, 'fr', 'auto')
+                        translated_list.append(translated_p)
+                    except Exception:
+                        translated_list.append(clean_str)
             return jsonify({'translation': translated_list})
 
         # Handles Single Text String (Tab 1)
+        if str(text_data).strip() in ROUTINE_PRETRANSLATIONS:
+            return jsonify({'translation': ROUTINE_PRETRANSLATIONS[str(text_data).strip()]})
+
         translated = mtranslate.translate(str(text_data), 'fr', 'auto')
         return jsonify({'translation': translated})
 
     except Exception as e:
-        print(f"Translation Route Failure: {str(e)}")
-        return jsonify({'translation': "Error translating text. Please try again."})
+        print(f"Translation Failure: {str(e)}")
+        if isinstance(text_data, list):
+            return jsonify({'translation': [ROUTINE_PRETRANSLATIONS.get(x.strip(), x) for x in text_data]})
+        return jsonify({'translation': ROUTINE_PRETRANSLATIONS.get(str(text_data).strip(), "Translation service temporarily unavailable.")})
 
 if __name__ == '__main__':
     app.run(debug=True)
