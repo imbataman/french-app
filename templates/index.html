@@ -29,6 +29,9 @@
             color: #d63384;
             font-style: italic;
         }
+        .nav-pills .nav-link {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -37,25 +40,25 @@
     <h2 class="fw-bold mb-4">TCF / TEF French Master Application</h2>
 
     <!-- Navigation Tabs -->
-    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="pills-tab1-tab" data-bs-toggle="pill" data-bs-target="#tab1" type="button" role="tab">Tab 1: Translator & Audio</button>
+    <ul class="nav nav-pills mb-4" id="mainTab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" onclick="switchTab('tab1', this)">Tab 1: Translator & Audio</button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="pills-tab2-tab" data-bs-toggle="pill" data-bs-target="#tab2" type="button" role="tab">Tab 2: 10-Repetition Practice</button>
+        <li class="nav-item">
+            <button class="nav-link" onclick="switchTab('tab2', this)">Tab 2: 10-Repetition Practice</button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="pills-tab3-tab" data-bs-toggle="pill" data-bs-target="#tab3" type="button" role="tab">Tab 3: Daily Routines</button>
+        <li class="nav-item">
+            <button class="nav-link" onclick="switchTab('tab3', this)">Tab 3: Daily Routines</button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="pills-tab4-tab" data-bs-toggle="pill" data-bs-target="#tab4" type="button" role="tab">Tab 4: Grammar Module</button>
+        <li class="nav-item">
+            <button class="nav-link" onclick="switchTab('tab4', this)">Tab 4: Grammar Module</button>
         </li>
     </ul>
 
-    <div class="tab-content" id="pills-tabContent">
+    <div class="tab-content" id="mainTabContent">
 
         <!-- TAB 1: TRANSLATOR & AUDIO -->
-        <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+        <div class="tab-pane fade show active" id="tab1">
             <div class="main-card">
                 <h4 class="fw-bold mb-3">English to French Translator</h4>
                 <div class="mb-3">
@@ -70,7 +73,7 @@
         </div>
 
         <!-- TAB 2: 10-REPETITION PRACTICE -->
-        <div class="tab-pane fade" id="tab2" role="tabpanel">
+        <div class="tab-pane fade d-none" id="tab2">
             <div class="main-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="fw-bold m-0">Vocabulary Repetition Practice (A1 -> B2)</h4>
@@ -91,7 +94,7 @@
         </div>
 
         <!-- TAB 3: DAILY ROUTINES -->
-        <div class="tab-pane fade" id="tab3" role="tabpanel">
+        <div class="tab-pane fade d-none" id="tab3">
             <div class="main-card">
                 <h4 class="fw-bold mb-3">Daily Routine Reading & Vocabulary Generator</h4>
                 <button class="btn btn-info text-white mb-3" onclick="generateNewRoutine()">🎲 Generate New Daily Paragraph</button>
@@ -111,7 +114,7 @@
         </div>
 
         <!-- TAB 4: GRAMMAR MODULE -->
-        <div class="tab-pane fade" id="tab4" role="tabpanel">
+        <div class="tab-pane fade d-none" id="tab4">
             <div class="main-card">
                 <h4 class="fw-bold mb-3">Interactive French Grammar Module</h4>
                 <label class="form-label fw-bold">Select Grammar Topic:</label>
@@ -146,10 +149,30 @@
   <span>Buy me a coffee</span>
 </a>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.bundle.min.js"></script>
-
 <script>
-    // TAB TRANSLATOR FUNCTION
+    // RELIABLE TAB SWITCHING LOGIC
+    function switchTab(tabId, element) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.add('d-none');
+            pane.classList.remove('show', 'active');
+        });
+
+        // Deactivate all nav buttons
+        document.querySelectorAll('#mainTab .nav-link').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Activate selected tab
+        const targetPane = document.getElementById(tabId);
+        if (targetPane) {
+            targetPane.classList.remove('d-none');
+            targetPane.classList.add('show', 'active');
+        }
+        element.classList.add('active');
+    }
+
+    // TRANSLATOR
     async function translateTab1() {
         const text = document.getElementById('translator-input').value;
         const outputBox = document.getElementById('translator-output');
@@ -175,7 +198,7 @@
                 outputBox.innerText = "Translation error encountered.";
             }
         } catch (err) {
-            outputBox.innerText = "Error connecting to translation service.";
+            outputBox.innerText = "Error connecting to server.";
         }
     }
 
@@ -197,7 +220,7 @@
         window.speechSynthesis.speak(utterance);
     }
 
-    // TAB 2: VOCABULARY VIA BACKEND API
+    // TAB 2: VOCABULARY
     let completedCount = 0;
     window.activeTargetWord = "";
 
@@ -242,9 +265,7 @@
     const routineParagraphs = [
         [
             "I got up early today at 6:00 AM. I made a hot cup of black coffee and read the morning news on my tablet for fifteen minutes.",
-            "I arrived at my workplace around 8:45 AM and greeted my colleagues. The morning flew by with consecutive meetings and responding to urgent emails.",
-            "By 6:00 PM, I went for a quick jog in the park. The evening weather was pleasant and crisp.",
-            "Before going to bed, I organized my desk, wrote down my goals for tomorrow, and spent twenty minutes reading a fiction book."
+            "I arrived at my workplace around 8:45 AM and greeted my colleagues. The morning flew by with consecutive meetings and responding to urgent emails."
         ]
     ];
 
